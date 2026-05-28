@@ -8,10 +8,10 @@
 
 [![npm version](https://img.shields.io/npm/v/@stless/modify-js.svg)](https://www.npmjs.com/package/@stless/modify-js)
 ![Node.js](https://img.shields.io/badge/Node.js-%3E%3D16.11.0-green)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/harnuma9/modify-js/blob/main/LICENSE)
-![Verify Status](https://github.com/harnuma9/modify-js/actions/workflows/verify.yml/badge.svg)
-[![Socket Badge](https://badge.socket.dev/npm/package/@stless/modify-js/2.0.1)](https://badge.socket.dev/npm/package/@stless/modify-js/2.0.1)
-[![Donate](https://img.shields.io/badge/@Harnuma9-Donate-FF4D4D)](https://harnuma9.github.io/donate/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/harnumaix/modify-js/blob/main/LICENSE)
+![Verify Status](https://github.com/harnumaix/modify-js/actions/workflows/verify.yml/badge.svg)
+[![Socket Badge](https://badge.socket.dev/npm/package/@stless/modify-js/2.0.2)](https://badge.socket.dev/npm/package/@stless/modify-js/2.0.2)
+[![Donate](https://img.shields.io/badge/@HarnumaIX-Donate-FF4D4D)](https://harnumaix.github.io/donate/)
 
 <br />
 
@@ -19,9 +19,9 @@
 
 <br />
 
-> 📖 **Documentation:** Full API breakdowns, edge cases, and advanced configurations are available at **[harnuma9.github.io/modify-js](https://harnuma9.github.io/modify-js/)**.
+> 📖 **Documentation:** Full API breakdowns, edge cases, and advanced configurations are available at **[harnumaix.github.io/modify-js](https://harnumaix.github.io/modify-js/)**.
 
-> 📦 **Full API context optimized for AI assistants and contributors** is available in [`llms-full.txt`](https://github.com/harnuma9/modify-js/blob/main/llms-full.txt).
+> 📦 **Full API context optimized for AI assistants and contributors** is available in [`llms-full.txt`](https://github.com/harnumaix/modify-js/blob/main/llms-full.txt).
 
 <br />
 <br />
@@ -450,8 +450,8 @@ Copyright © 2026 Aries Harbinger. See the **[LICENSE](https://github.com/harnum
 
 * [Github Repository](https://github.com/harnumaix/modify-js)
 * [npm Package](https://www.npmjs.com/package/@stless/modify-js)
-* Full AI Context **[llms-full.txt](https://github.com/harnuma9/modify-js/blob/main/llms-full.txt)** (for contributors / LLM assistants)
-* Full API Documentations **[harnuma9.github.io/modify-js](https://harnuma9.github.io/modify-js/)**
+* Full AI Context **[llms-full.txt](https://github.com/harnumaix/modify-js/blob/main/llms-full.txt)** (for contributors / LLM assistants)
+* Full API Documentations **[harnumaix.github.io/modify-js](https://harnumaix.github.io/modify-js/)**
 
 <br />
 <br />
