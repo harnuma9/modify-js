@@ -31,6 +31,21 @@ node ./node_modules/typedoc/bin/typedoc src/index.d.ts \
     --cleanOutputDir true \
     --skipErrorChecking true || echo '⚠️ TypeDoc hints ignored.'
 
+echo "Injecting Favicon into Documentation HTML..."
+# Prüfen, ob der Dokumentationsordner existiert
+if [ -d "docs" ]; then
+    # Alle .html-Dateien im docs-Ordner finden und per sed bearbeiten
+    find docs -type f -name "*.html" | while read -r html_file; do
+        # Groß-/Kleinschreibung ignorieren (case-insensitive) und Favicon-Link in <head> einfügen
+        # Funktioniert sowohl auf macOS (sed -i '') als auch auf Linux (sed -i)
+        sed -i '' -E 's/(<head>)/\1<link rel="icon" type="image\/x-icon" href="https:\/\/cdn.jsdelivr.net\/gh\/harnumaix\/donate@main\/assets\/favicon.ico?v=1" \/>/I' "$html_file" 2>/dev/null || \
+        sed -i -E 's/(<head>)/\1<link rel="icon" type="image\/x-icon" href="https:\/\/cdn.jsdelivr.net\/gh\/harnumaix\/donate@main\/assets\/favicon.ico?v=1" \/>/I' "$html_file"
+    done
+    echo "  > Favicon injected successfully!"
+else
+    echo "⚠️ Warning: docs folder not found. Skipping favicon injection."
+fi
+
 echo "Minifying Distribution..."
 # Dist-Ordner für die Veröffentlichung vorbereiten
 rm -rf dist 2>/dev/null
