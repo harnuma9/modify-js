@@ -1,6 +1,6 @@
 {
   "name": "@stless/modify-js",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Zero-dependency, hardened functional pipeline utility for Node.js. A predictable, secure alternative to the TC39 Pipeline Operator.",
   "author": "Aries Harbinger",
   "license": "Apache-2.0",
