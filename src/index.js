@@ -220,7 +220,7 @@ const toAsync = (fn) => {
  * @template T - The expected resolve type of the primary logic function.
  * @template E - The expected error type caught in the catch block. Defaults to `unknown`.
  * @template R - The return type of the error callback function (recovery value).
- * @param {() => Promise<T> | T} logic - The core function to execute safely. Can be synchronous or asynchronous.
+ * @param {() => Promise<T> | T} logic - The core function to execute safely. Must satisfy `isFunction` check.  Can be synchronous or asynchronous.
  * @param {(err: E, partialResult: undefined) => R | Promise<R>} [cb_err] - Optional error callback. Note: `partialResult` will always be `undefined` because if `logic` throws, its assignment never completes.
  * @param {(result: T | undefined) => void | Promise<void>} [cb_last] - Optional finalizer callback (runs like a `finally` block). Receives the successful result `T` from `logic`, or `undefined` if `logic` threw an exception (even if `cb_err` recovers a value).
  * @param {boolean} [isThrow=true] - If `true`, re-throws the caught error after executing all callbacks.
@@ -228,7 +228,7 @@ const toAsync = (fn) => {
  * - The result of `logic` (`T`) on success.
  * - The fallback result of `cb_err` (`R`) if an error was caught and handled.
  * - `undefined` if an error occurred, `isThrow` is false, and no `cb_err` handler was provided.
- * @throws {TypeError} If the provided `logic` argument is not an invocable function.
+ * @throws {TypeError} If the provided `logic` argument fails the `isFunction` validation check.
  * @throws {E} Re-throws the original caught error if `isThrow` is true and an exception occurs.
  * @public
  * @category Utilities
@@ -248,7 +248,7 @@ const wrapTry = async (logic, cb_err, cb_last, isThrow = true) => {
     let d, c;
 
     try {
-        if (typeof logic !== 'function') throw new TypeError('wrapTry expected an executable function for the core execution block');
+        if (!isFunction(logic)) throw new TypeError('wrapTry expected an executable function for the core execution block');
         d = await logic();
     }
 
@@ -338,7 +338,7 @@ const zeroBuf = (...args) => {
                 new Uint8Array(buf).fill(0);
             }
 
-            else if (typeof buf?.fill === 'function') {
+            else if (isFunction(buf?.fill)) {
                 buf.fill(0);
             }
         }
@@ -370,7 +370,7 @@ const compareVal = (a, b) => {
     // Fast Paths & Reference Check
     if (a == null || b == null) return a === b;
     if (Object.is(a, b)) return true;
-    if (typeof a === 'function' && typeof b === 'function') return false;
+    if (isFunction(a) && isFunction(b)) return false;
 
     // Constructor and prototype verification
     if (
@@ -463,7 +463,7 @@ class SilentPipe {
 
                     // Bind functions correctly to the proxy receiver
                     const value = target.constructor.prototype[prop];
-                    return typeof value === 'function' ? value.bind(target) : value;
+                    return isFunction(value) ? value.bind(target) : value;
                 }
 
                 // Strictly satisfy Proxy Invariants
@@ -487,7 +487,7 @@ class SilentPipe {
      */
     out(def, lock = true) {
         this.#assertActive();
-        try     { return this.#value === void 0 ? (typeof def === 'function' ? def() : def) : this.#value; }
+        try     { return this.#value === void 0 ? (isFunction(def) ? def() : def) : this.#value; }
         finally { this.#value = void 0; if (lock) Object.freeze(this); }
     }
 
@@ -969,7 +969,6 @@ class Pipe {
 
         catch (err) {
             this.#checkFallback(fallback, err);
-
             const res = isFunction(fallback) ? fallback(err, rollbackValue, this) : fallback;
             if (!!isModify)
                 this.#define(res === void 0 ? rollbackValue : res);

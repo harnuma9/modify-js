@@ -10,7 +10,7 @@
 ![Node.js](https://img.shields.io/badge/Node.js-%3E%3D16.11.0-green)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/harnumaix/modify-js/blob/main/LICENSE)
 ![Verify Status](https://github.com/harnumaix/modify-js/actions/workflows/verify.yml/badge.svg)
-[![Socket Badge](https://badge.socket.dev/npm/package/@stless/modify-js/2.0.2)](https://badge.socket.dev/npm/package/@stless/modify-js/2.0.2)
+[![Socket Badge](https://badge.socket.dev/npm/package/@stless/modify-js/2.0.3)](https://badge.socket.dev/npm/package/@stless/modify-js/2.0.3)
 [![Donate](https://img.shields.io/badge/@HarnumaIX-Donate-FF4D4D)](https://harnumaix.github.io/donate/)
 
 <br />

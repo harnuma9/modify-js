@@ -53,7 +53,7 @@ export function toAsync<T extends (...args: any[]) => any>(fn: T): ((...args: Pa
  * @template T - The expected resolve type of the primary logic function.
  * @template E - The expected error type caught in the catch block. Defaults to `unknown`.
  * @template R - The return type of the error callback function (recovery value).
- * @param {() => Promise<T> | T} logic - The core function to execute safely. Can be synchronous or asynchronous.
+ * @param {() => Promise<T> | T} logic - The core function to execute safely. Must satisfy `isFunction` check.  Can be synchronous or asynchronous.
  * @param {(err: E, partialResult: undefined) => R | Promise<R>} [cb_err] - Optional error callback. Note: `partialResult` will always be `undefined` because if `logic` throws, its assignment never completes.
  * @param {(result: T | undefined) => void | Promise<void>} [cb_last] - Optional finalizer callback (runs like a `finally` block). Receives the successful result `T` from `logic`, or `undefined` if `logic` threw an exception (even if `cb_err` recovers a value).
  * @param {boolean} [isThrow=true] - If `true`, re-throws the caught error after executing all callbacks.
@@ -61,7 +61,7 @@ export function toAsync<T extends (...args: any[]) => any>(fn: T): ((...args: Pa
  * - The result of `logic` (`T`) on success.
  * - The fallback result of `cb_err` (`R`) if an error was caught and handled.
  * - `undefined` if an error occurred, `isThrow` is false, and no `cb_err` handler was provided.
- * @throws {TypeError} If the provided `logic` argument is not an invocable function.
+ * @throws {TypeError} If the provided `logic` argument fails the `isFunction` validation check.
  * @throws {E} Re-throws the original caught error if `isThrow` is true and an exception occurs.
  * @public
  * @category Utilities
