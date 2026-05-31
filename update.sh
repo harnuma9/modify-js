@@ -99,7 +99,7 @@ echo "Generating AI-Ready Documentation..."
 rm -f repomix-output.xml llms-full.txt 2>/dev/null
 npx --yes repomix --style markdown \
     --output llms-full.txt \
-    --ignore ".git/**,.github/**,node_modules/**,dist/**,docs/**,temp/**,**/*.sh,**/*.png,**/*.ico,**/*.svg,**/*.sha256,**/*.map,**/*.min.js,**/*.eot,**/*.ttf,**/*.woff*"
+    --ignore ".git/**,.github/**,node_modules/**,dist/**,docs/**,temp/**,test/**,**/*.sh,**/*.png,**/*.ico,**/*.svg,**/*.sha256,**/*.map,**/*.min.js,**/*.eot,**/*.ttf,**/*.woff*"
 
 echo "Build Complete! ✅"
 exit 0
