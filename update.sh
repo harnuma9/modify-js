@@ -23,7 +23,9 @@ fi
 echo "Generating Documentation..."
 # Dokumentationsordner zurücksetzen
 # rm -rf docs 2>/dev/null
-node ./node_modules/typedoc/bin/typedoc src/index.d.ts \
+node ./node_modules/typedoc/bin/typedoc \
+    --entryPointStrategy expand \
+    --entryPoints "src/**/*.d.ts" \
     --out docs \
     --readme README.md \
     --name "@stless/modify-js" \
