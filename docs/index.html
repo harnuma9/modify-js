@@ -1,5 +1,5 @@
 <!DOCTYPE html><html class="default" lang="en" data-base="./"><head><link rel="icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/harnumaix/donate@main/assets/favicon.ico?v=1" /><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>@stless/modify-js</title><meta name="description" content="Documentation for @stless/modify-js"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><a href="index.html" class="title">@stless/modify-js</a><div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/><ul role="listbox" id="tsd-search-results"></ul><div id="tsd-search-status" aria-live="polite" aria-atomic="true"><div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h1>@stless/modify-js</h1></div><div class="tsd-panel tsd-typography"><div align="center">
-<img src="https://raw.githubusercontent.com/harnumaix/modify-js/refs/heads/main/media/banner.png" alt="Banner" width="1250">
+  <img src="https://raw.githubusercontent.com/harnumaix/modify-js/refs/heads/main/media/banner.png" alt="Banner" width="1250">
 </div>
 <br />
 <h1 id="stlessmodify-js" class="tsd-anchor-link">@stless/modify-js<a href="#stlessmodify-js" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
@@ -7,7 +7,7 @@
 <img src="https://img.shields.io/badge/Node.js-%3E%3D16.11.0-green" alt="Node.js">
 <a href="https://github.com/harnumaix/modify-js/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
 <img src="https://github.com/harnumaix/modify-js/actions/workflows/verify.yml/badge.svg" alt="Verify Status">
-<a href="https://badge.socket.dev/npm/package/@stless/modify-js/2.0.3"><img src="https://badge.socket.dev/npm/package/@stless/modify-js/2.0.3" alt="Socket Badge"></a>
+<a href="https://badge.socket.dev/npm/package/@stless/modify-js/2.0.4"><img src="https://badge.socket.dev/npm/package/@stless/modify-js/2.0.4" alt="Socket Badge"></a>
 <a href="https://harnumaix.github.io/donate/"><img src="https://img.shields.io/badge/@HarnumaIX-Donate-FF4D4D" alt="Donate"></a></p>
 <br />
 <p><code>@stless/modify-js</code> is an opinionated, zero-dependency utility implementing functional piping through a stateful container. It provides a predictable, secure alternative to the TC39 Pipeline Operator.</p>
@@ -177,7 +177,7 @@ This library has no browser equivalent for <code>timingSafeEqual</code>, and bun
 <td><strong>Bundle size</strong></td>
 <td>~75KB minified</td>
 <td>~45KB minified (core)</td>
-<td>~7.2KB minified</td>
+<td>~7KB minified</td>
 </tr>
 </tbody>
 </table>
@@ -303,7 +303,7 @@ This library has no browser equivalent for <code>timingSafeEqual</code>, and bun
 <br />
 <h3 id="standalone-core-utilities" class="tsd-anchor-link">Standalone Core Utilities<a href="#standalone-core-utilities" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <p>The underlying infrastructure components can be imported independently as named exports for lower-level systems engineering tasking.</p>
-<pre><code class="javascript"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">zeroBuf</span><span class="hl-1">, </span><span class="hl-4">compareVal</span><span class="hl-1">, </span><span class="hl-4">isAsync</span><span class="hl-1">, </span><span class="hl-4">toAsync</span><span class="hl-1">, </span><span class="hl-4">wrapTry</span><span class="hl-1">, </span><span class="hl-4">wrapTrySync</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&#39;@stless/modify-js&#39;</span><span class="hl-1">;</span>
+<pre><code class="javascript"><span class="hl-3">import</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">zeroBuf</span><span class="hl-1">, </span><span class="hl-4">isAsync</span><span class="hl-1">, </span><span class="hl-4">toAsync</span><span class="hl-1">, </span><span class="hl-4">compareVal</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-4">PipeAliases</span><span class="hl-1">, </span><span class="hl-4">SilentPipe</span><span class="hl-1">, </span><span class="hl-4">Pipe</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-4">chain_</span><span class="hl-1">, </span><span class="hl-4">chain$</span><br/><span class="hl-1">} </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&#39;@stless/modify-js&#39;</span><span class="hl-1">;</span><br/>
 </code><button type="button">Copy</button></pre>
 
 <br />
@@ -312,7 +312,7 @@ This library has no browser equivalent for <code>timingSafeEqual</code>, and bun
 <tr>
 <th>Named Export</th>
 <th>Type</th>
-<th>Purpose &amp; Low-Level Mechanics</th>
+<th>Purpose</th>
 </tr>
 </thead>
 <tbody>
@@ -342,16 +342,6 @@ This library has no browser equivalent for <code>timingSafeEqual</code>, and bun
 <td>Normalizes input execution signatures. Wraps synchronous function references inside a non-blocking asynchronous executor shell while passing existing async chains straight through.</td>
 </tr>
 <tr>
-<td><strong><code>wrapTry</code></strong></td>
-<td><code>Function</code></td>
-<td>Asynchronous error boundary orchestration engine. Automatically handles both synchronous and asynchronous execution branches, callbacks, and teardown lifecycles seamlessly via native await normalization.</td>
-</tr>
-<tr>
-<td><strong><code>wrapTrySync</code></strong></td>
-<td><code>Function</code></td>
-<td>Synchronous variation of <code>wrapTry</code>. Absorbs processing errors safely inside synchronous runtime steps without throwing uncaught thread failures.</td>
-</tr>
-<tr>
 <td><strong><code>Pipe</code></strong></td>
 <td><code>Class</code></td>
 <td>The core underlying pipeline state machine container. Highly defensive structure requiring active instance validation on every lifecycle state change.</td>
@@ -365,6 +355,49 @@ This library has no browser equivalent for <code>timingSafeEqual</code>, and bun
 <td><strong><code>PipeAliases</code></strong></td>
 <td><code>Object</code></td>
 <td>A frozen map of shorthand aliases registered onto the <code>Pipe</code> and <code>SilentPipe</code> prototypes at module load time (e.g. <code>_p</code> → <code>modify</code>, <code>$xe</code> → <code>exitErr</code>).</td>
+</tr>
+</tbody>
+</table>
+<br />
+<h3 id="mini-utilities" class="tsd-anchor-link">Mini Utilities<a href="#mini-utilities" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>A zero-dependency runtime hardening utility ecosystem for memory sanitization and control-flow fault isolation.</p>
+<pre><code class="javascript"><span class="hl-3">import</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">PrivateContainer</span><span class="hl-1">, </span><span class="hl-4">hardenFn</span><span class="hl-1">, </span><span class="hl-4">zeroBuf</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-4">wrapTry</span><span class="hl-1">, </span><span class="hl-4">wrapTrySync</span><br/><span class="hl-1">} </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&#39;@stless/modify-js/mini-utils&#39;</span><span class="hl-1">;</span><br/>
+</code><button type="button">Copy</button></pre>
+
+<br />
+<table>
+<thead>
+<tr>
+<th>Named Export</th>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>wrapTry</code></strong></td>
+<td><code>Function</code></td>
+<td>Asynchronous error boundary orchestration engine. Automatically handles both synchronous and asynchronous execution branches, callbacks, and teardown lifecycles seamlessly via native await normalization.</td>
+</tr>
+<tr>
+<td><strong><code>wrapTrySync</code></strong></td>
+<td><code>Function</code></td>
+<td>Synchronous variation of <code>wrapTry</code>. Absorbs processing errors safely inside synchronous runtime steps without throwing uncaught thread failures.</td>
+</tr>
+<tr>
+<td><strong><code>zeroBuf</code></strong></td>
+<td><code>Function</code></td>
+<td>Zeros out binary views and raw buffers (<code>ArrayBuffer</code>, <code>SharedArrayBuffer</code>, typed views) by calling <code>.fill(0)</code> across the allocated memory region. <strong>Note:</strong> the JS runtime or OS may not guarantee immediate physical erasure.</td>
+</tr>
+<tr>
+<td><strong><code>hardenFn</code></strong></td>
+<td><code>Function</code></td>
+<td>Structurally locks a function by redefining its <code>name</code> property descriptor as non-configurable, non-writable, and non-enumerable. Optionally reassigns the hardened reference in-place onto a parent object at a given key.</td>
+</tr>
+<tr>
+<td><strong><code>PrivateContainer</code></strong></td>
+<td><code>Class</code></td>
+<td>A hardened runtime vault for isolated value storage. Uses a true private field (<code>#internalVal</code>) to enforce strict scoping boundaries around sensitive primitives or callbacks. Supports lazy evaluation, togglable function unwrapping, <code>zeroBuf</code>-backed memory scrubbing via <code>.reset()</code>, and permanent immutability via <code>.freeze()</code>. Designed as a defensive replacement for soft-private conventions such as <code>_privateValue</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -409,4 +442,4 @@ This library has no browser equivalent for <code>timingSafeEqual</code>, and bun
 <br />
 <br />
 <br />
-<br /></div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#stlessmodify-js"><span>@stless/modify-<wbr/>js</span></a><ul><li><a href="#🚀-getting-started"><span>🚀 <wbr/>Getting <wbr/>Started</span></a></li><li><ul><li><a href="#requirements"><span>Requirements</span></a></li></ul></li><li><a href="#📖-usage-guide"><span>📖 <wbr/>Usage <wbr/>Guide</span></a></li><li><ul><li><a href="#basic-operations-"><span>Basic <wbr/>Operations (, , , )</span></a></li><li><a href="#deep-path-traversal-"><span>Deep <wbr/>Path <wbr/>Traversal ( / )</span></a></li><li><a href="#pipeline-flag-modifiers-"><span>Pipeline <wbr/>Flag <wbr/>Modifiers (, )</span></a></li><li><a href="#conditional-control-flow-"><span>Conditional <wbr/>Control <wbr/>Flow ()</span></a></li><li><a href="#advanced-exception-management-"><span>Advanced <wbr/>Exception <wbr/>Management (, )</span></a></li></ul></li><li><a href="#⚔️-syntax-comparison"><span>⚔️ <wbr/>Syntax <wbr/>Comparison</span></a></li><li><a href="#⚔️-library-comparison"><span>⚔️ <wbr/>Library <wbr/>Comparison</span></a></li><li><ul><li><a href="#lodash"><span>Lodash</span></a></li><li><a href="#rxjs"><span>Rx<wbr/>JS</span></a></li><li><a href="#with"><span>With </span></a></li><li><a href="#at-a-glance"><span>At a glance</span></a></li></ul></li><li><a href="#🧩-technical-implementation-reference"><span>🧩 <wbr/>Technical <wbr/>Implementation <wbr/>Reference</span></a></li><li><ul><li><a href="#pipeline-instance-methods"><span>Pipeline <wbr/>Instance <wbr/>Methods</span></a></li><li><a href="#standalone-core-utilities"><span>Standalone <wbr/>Core <wbr/>Utilities</span></a></li></ul></li><li><a href="#🛠-️development-verification"><span>🛠 ️<wbr/>Development &amp; <wbr/>Verification</span></a></li><li><a href="#⭐-contributors"><span>⭐ <wbr/>Contributor(s)</span></a></li><li><a href="#license"><span>License</span></a></li><li><a href="#🔗-links"><span>🔗 <wbr/>Links</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html">@stless/modify-js</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer></footer><div class="overlay"></div></body></html>
+<br /></div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#stlessmodify-js"><span>@stless/modify-<wbr/>js</span></a><ul><li><a href="#🚀-getting-started"><span>🚀 <wbr/>Getting <wbr/>Started</span></a></li><li><ul><li><a href="#requirements"><span>Requirements</span></a></li></ul></li><li><a href="#📖-usage-guide"><span>📖 <wbr/>Usage <wbr/>Guide</span></a></li><li><ul><li><a href="#basic-operations-"><span>Basic <wbr/>Operations (, , , )</span></a></li><li><a href="#deep-path-traversal-"><span>Deep <wbr/>Path <wbr/>Traversal ( / )</span></a></li><li><a href="#pipeline-flag-modifiers-"><span>Pipeline <wbr/>Flag <wbr/>Modifiers (, )</span></a></li><li><a href="#conditional-control-flow-"><span>Conditional <wbr/>Control <wbr/>Flow ()</span></a></li><li><a href="#advanced-exception-management-"><span>Advanced <wbr/>Exception <wbr/>Management (, )</span></a></li></ul></li><li><a href="#⚔️-syntax-comparison"><span>⚔️ <wbr/>Syntax <wbr/>Comparison</span></a></li><li><a href="#⚔️-library-comparison"><span>⚔️ <wbr/>Library <wbr/>Comparison</span></a></li><li><ul><li><a href="#lodash"><span>Lodash</span></a></li><li><a href="#rxjs"><span>Rx<wbr/>JS</span></a></li><li><a href="#with"><span>With </span></a></li><li><a href="#at-a-glance"><span>At a glance</span></a></li></ul></li><li><a href="#🧩-technical-implementation-reference"><span>🧩 <wbr/>Technical <wbr/>Implementation <wbr/>Reference</span></a></li><li><ul><li><a href="#pipeline-instance-methods"><span>Pipeline <wbr/>Instance <wbr/>Methods</span></a></li><li><a href="#standalone-core-utilities"><span>Standalone <wbr/>Core <wbr/>Utilities</span></a></li><li><a href="#mini-utilities"><span>Mini <wbr/>Utilities</span></a></li></ul></li><li><a href="#🛠-️development-verification"><span>🛠 ️<wbr/>Development &amp; <wbr/>Verification</span></a></li><li><a href="#⭐-contributors"><span>⭐ <wbr/>Contributor(s)</span></a></li><li><a href="#license"><span>License</span></a></li><li><a href="#🔗-links"><span>🔗 <wbr/>Links</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html">@stless/modify-js</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer></footer><div class="overlay"></div></body></html>

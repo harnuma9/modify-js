@@ -110,8 +110,10 @@ const PipeAliases = Object.freeze({
     _l: 'isLocked',     $l: 'isLocked'
 });
 
+import { PrivateContainer, hardenFn, zeroBuf, wrapTrySync } from '@stless/modify-js/mini-utils';
 import { isDeepStrictEqual, types } from 'node:util';
 import { timingSafeEqual } from 'node:crypto';
+
 
 /**
  * A reference to the prototype of an async function instance.
@@ -120,7 +122,7 @@ import { timingSafeEqual } from 'node:crypto';
  * @ignore
  * @category Utility
  */
-const AsyncFunctionProto = Object.getPrototypeOf(async () => {});
+const AsyncFunctionProto = new PrivateContainer(Object.getPrototypeOf(async () => {})).freeze();
 
 
 /**
@@ -173,7 +175,7 @@ const manualTimingSafeEqual = (viewA, viewB, length) => {
  * isAsync(syncFn);  // false
  * isAsync(asyncFn); // true
  */
-const isAsync = (fn) => (isFunction(fn) && Object.getPrototypeOf(fn) === AsyncFunctionProto);
+const isAsync = (fn) => (isFunction(fn) && Object.getPrototypeOf(fn) === AsyncFunctionProto.value);
 
 
 /**
@@ -209,143 +211,6 @@ const toAsync = (fn) => {
 
     // Return a new async wrapper which catches synchronous errors as promise rejections
     return async (...args) => fn(...args);
-};
-
-
-/**
- * An asynchronous try-catch-finally wrapper for streamlined control flow.
- * @remarks
- * - Seamlessly handles both synchronous and asynchronous functions by safely awaiting execution blocks.
- * - Guarantees sequential, chronological execution of error hooks (`cb_err`) and finalizers (`cb_last`).
- * @template T - The expected resolve type of the primary logic function.
- * @template E - The expected error type caught in the catch block. Defaults to `unknown`.
- * @template R - The return type of the error callback function (recovery value).
- * @param {() => Promise<T> | T} logic - The core function to execute safely. Must satisfy `isFunction` check.  Can be synchronous or asynchronous.
- * @param {(err: E, partialResult: undefined) => R | Promise<R>} [cb_err] - Optional error callback. Note: `partialResult` will always be `undefined` because if `logic` throws, its assignment never completes.
- * @param {(result: T | undefined) => void | Promise<void>} [cb_last] - Optional finalizer callback (runs like a `finally` block). Receives the successful result `T` from `logic`, or `undefined` if `logic` threw an exception (even if `cb_err` recovers a value).
- * @param {boolean} [isThrow=true] - If `true`, re-throws the caught error after executing all callbacks.
- * @returns {Promise<T | R | undefined>} A promise that resolves to:
- * - The result of `logic` (`T`) on success.
- * - The fallback result of `cb_err` (`R`) if an error was caught and handled.
- * - `undefined` if an error occurred, `isThrow` is false, and no `cb_err` handler was provided.
- * @throws {TypeError} If the provided `logic` argument fails the `isFunction` validation check.
- * @throws {E} Re-throws the original caught error if `isThrow` is true and an exception occurs.
- * @public
- * @category Utilities
- * @example
- * const data = await wrapTry(
- *     async () => await fetchUser(1),
- *     (err) => {
- *         console.error("Failed to fetch:", err);
- *         return { guest: true }; // Fallback value (Type R)
- *     },
- *     (primaryResult) => console.log("Operation finished. Was successful:", !!primaryResult),
- *     false
- * );
- */
-const wrapTry = async (logic, cb_err, cb_last, isThrow = true) => {
-    let caughtError = null;
-    let d, c;
-
-    try {
-        if (!isFunction(logic)) throw new TypeError('wrapTry expected an executable function for the core execution block');
-        d = await logic();
-    }
-
-    catch (e) {
-        caughtError = e;
-        if (cb_err) c = await cb_err(e, d);
-    }
-
-    if (cb_last) await cb_last(d);
-
-    if (caughtError && isThrow) throw caughtError;
-    return caughtError ? c : d;
-};
-
-
-/**
- * Synchronous try-catch wrapper for clean flow control.
- * @remarks
- * **CRITICAL:** This utility executes purely synchronously. All provided callbacks (`cb_err`, `cb_last`)
- * **must** be synchronous routines. If asynchronous functions or Promise-returning actions are provided,
- * they will fire background tasks, but the wrapper will return immediately without waiting for them to complete.
- * @template T - The return type of the main synchronous logic function.
- * @template E - The expected error type caught in the catch block. Defaults to `unknown`.
- * @template R - The return type of the error callback function.
- * @param {() => T} logic - The core synchronous function to execute. Must satisfy `isFunction` check.
- * @param {(err: E) => R} [cb_err] - Optional synchronous error callback.
- * @param {(result: T | undefined) => void} [cb_last] - Optional synchronous finalizer callback. Receives the successful result `T`, or `undefined` if execution failed.
- * @param {boolean} [isThrow=true] - If `true`, re-throws the caught error after executing callbacks.
- * @returns {T | R | undefined} The result of `logic` on success, the result of `cb_err` on failure, or `undefined` if a failure occurs and no error callback is provided.
- * @throws {TypeError} If the provided `logic` argument fails the `isFunction` validation check.
- * @throws {E} Re-throws the original caught error if `isThrow` is true and an exception occurs during execution.
- * @public
- * @category Utilities
- * @example
- * const result = wrapTrySync(
- *     () => JSON.parse(configString),
- *     (err) => ({ fallback: true }),
- *     () => console.log("Sync parsing attempted"),
- *     false
- * );
- */
-const wrapTrySync = (logic, cb_err, cb_last, isThrow = true) => {
-    let caughtError = null;
-    let d, c;
-
-    try {
-        if (!isFunction(logic)) throw new TypeError('wrapTrySync expected a function for the core execution block');
-        d = logic();
-    }
-
-    catch (e) {
-        caughtError = e;
-        c = cb_err?.(e);
-    }
-
-    cb_last?.(d);
-
-    if (caughtError && isThrow) throw caughtError;
-    return caughtError ? c : d;
-};
-
-
-/**
- * Overwrites the contents of arbitrary binary data containers with zeroes.
- * Wraps target buffers in a Uint8Array window to safely purge data footprints.
- * Supports typed array views, DataViews, standard ArrayBuffers, SharedArrayBuffers,
- * and custom buffer-like objects with a `.fill()` method.
- * @note This function safely swallows internal errors (e.g., if a buffer is detached,
- * transferred, or frozen) to prevent cleanup routines from crashing the application.
- * @param {...any} args - Multi-argument list of values targeted for clean erasure.
- * @returns {null} Always returns `null`.
- */
-const zeroBuf = (...args) => {
-    for (const buf of args) {
-        if (!buf) continue;
-
-        try {
-            if (ArrayBuffer.isView(buf)) {
-                new Uint8Array(
-                    buf.buffer,
-                    buf.byteOffset ?? 0,
-                    buf.byteLength ?? buf.buffer?.byteLength ?? 0
-                ).fill(0);
-            }
-
-            else if (types.isAnyArrayBuffer(buf)) {
-                new Uint8Array(buf).fill(0);
-            }
-
-            else if (isFunction(buf?.fill)) {
-                buf.fill(0);
-            }
-        }
-        catch (err) { } // Ignored - Some buffers may be detached, transferred, or frozen
-    }
-
-    return null;
 };
 
 
@@ -507,6 +372,7 @@ class SilentPipe {
  * @category Core
  */
 class Pipe {
+
     /**
      * Flag governing whether previous binary buffer state sequences (such as `ArrayBuffer`
      * or `TypedArray` views) must be systematically scrubbed via zero-filling during assignments.
@@ -903,12 +769,12 @@ class Pipe {
      * @throws {TypeError} If the provided `fn` argument is not a valid function.
      * @throws {Error} Re-throws the original processing exception if no `fallback` handler is provided.
      * @example
-     * chain_("https://malformed-url-target")
+     * chain_('{"bad-json...')
      *     .exitErr(
-     *         url => performUnsafeNetworkFetch(url),
-     *         (err) => ({ failure: true, trace: err.message }) // Escapes error track early
+     *         raw => JSON.parse(raw),
+     *         (err) => ({ isValid: false, reason: err.message }) // Escapes error track early
      *     )
-     *     ._p(response => response.json()) // Bypassed dynamically if fetch fails
+     *     ._p(config => config.theme) // Bypassed dynamically if JSON parsing fails
      *     .out();
      */
     exitErr(fn, fallback, isModify = true) {
@@ -979,16 +845,16 @@ class Pipe {
 
 
     /**
-     * Alters a deeply nested object property or specific array/buffer index within the pipeline state.
+     * Alters a nested object property or specific array/buffer index within the pipeline state.
      * @remarks
-     * This method dynamically parses dot-notation strings (e.g., `'profile.assets.id'`) or numeric indexes to
+     * This method dynamically parses path strings (e.g., `'settingsId'`) or numeric indexes to
      * traverse and modify target values. It features strict internal security guardrails that detect and
      * block malicious Prototype Pollution payloads targeting `__proto__`, `constructor`, or `prototype`.
      * *Note:* If `isCreateNestedObj` is true, a failure mid-way through a deep traversal path may leave
      * behind partially initialized empty objects `{}` on the original object reference before triggering the fallback.
      * @template V - The type of the value or modifier function being assigned.
      * @template F - The fallback type used to recover state if path traversal or assignment fails.
-     * @param {string | number} nameKey - A dot-separated string path representing the object hierarchy trajectory, or a direct numeric index.
+     * @param {string | number} nameKey - A string path representing the object hierarchy trajectory, or a direct numeric index.
      * @param {V | ((currentVal: *) => V)} val - The absolute replacement value, or a modifier callback receiving the existing property value and returning the update.
      * @param {boolean} [isCreateNestedObj=true] - When true, automatically initializes missing path segments as empty object layers `{}`.
      * @param {F | ((err: Error, partialResult: *, ctx: this) => F)} [fallback] - An optional fallback value or error-trapping routine to handle traversal or structural errors.
@@ -998,16 +864,16 @@ class Pipe {
      * @throws {Error} Re-throws the original processing exception if no `fallback` handler is provided.
      * @example
      * // Example 1: Updating flat or nested keys using values or modifiers
-     * chain_({ user: { name: "Gabe" } })
-     *     .alterValue("user.name", "Gabriel")
-     *     .alterValue("user.score", (prev = 0) => prev + 3.33);
+     * chain_({ config: "alpha" })
+     *     .alterValue("config", "beta")
+     *     .alterValue("score", (prev = 0) => prev + 3.33);
      * 
      * // Example 2: Target-altering a collection array index
      * chain_([10, 20, 30])
      *     .alterValue(1, 144); // Updates array index 1 from 20 to 144
      * 
      * // Example 3: Deep auto-instantiation with a graceful catch fallback
-     * chain_(null).alterValue("meta.deeply.nested.key", "Hello!", true, (err) => {
+     * chain_(null).alterValue("deepKey", "Hello!", true, (err) => {
      *     console.error("Traversal error bypassed:", err.message);
      *     return { errorState: true };
      * });
@@ -1130,32 +996,6 @@ class Pipe {
 
 
 /**
- * Structurally seal and alias the pipeline architecture.
- * Safely isolated from minifier scope-mangling and tree-shaking.
- * @ignore
- */
-((classes, aliasMap) => {
-    wrapTrySync(() => {
-        // Inject short-hand and symbol aliases dynamically across all prototypes
-        classes.forEach(currentClass => {
-            const proto = currentClass?.prototype;
-            if (!proto) return;
-
-            Object.entries(aliasMap).forEach(([alias, original]) => {
-                if (proto[original] && !proto[alias])
-                    proto[alias] = proto[original];
-            });
-        });
-
-        // Freeze the entire class and its prototypes
-        classes.forEach(currentClass => [currentClass, currentClass?.prototype].forEach(_ => (_ && Object.freeze(_))));
-
-    }, null, null, false);
-
-})([Pipe, SilentPipe], PipeAliases);
-
-
-/**
  * Creates a new Pipe instance to initiate a transformation pipeline.
  * @function chain_
  * @param {any|function(): any} val - The initial value to process. If a function is provided,
@@ -1164,7 +1004,7 @@ class Pipe {
  * Configuration options for automated cleanups and optimized deep mutations.
  * @returns {Pipe} A new initialization wrapper for the active Pipe execution context.
  * @example
- * const result = chain_("   hello world   ")
+ * const result = chain_("  hello world  ")
  *     ._p(s => s.trim())
  *     ._p(s => s.toUpperCase())
  *     .out(); // "HELLO WORLD"
@@ -1181,10 +1021,52 @@ const chain_ = (val, opts) => new Pipe(val, opts);
 const chain$ = (val, opts) => new Pipe(val, opts);
 
 
+/**
+ * Atomic Runtime Protection Bootstrapping Execution Loop.
+ * Structurally seal and alias the pipeline architecture.
+ * Safely isolated from minifier scope-mangling and tree-shaking.
+ * @ignore
+ */
+((classes, aliasMap) => {
+    wrapTrySync(() => {
+
+        for (const currentClass of classes) {
+            if (!currentClass) continue;
+            const proto = currentClass.prototype;
+
+            if (proto) {
+                // Inject short-hand and symbol aliases dynamically across all prototypes
+                for (const [alias, original] of Object.entries(aliasMap)) {
+                    if (proto[original] && !proto[alias])
+                        proto[alias] = proto[original];
+                }
+
+                // Loop through and anonymize the prototype methods
+                for (const key of Reflect.ownKeys(proto)) {
+                    if (key !== 'constructor' && typeof proto[key] === 'function')
+                        hardenFn(proto[key], proto, key);
+                }
+
+                Object.freeze(proto);
+            }
+
+            // Anonymize & freeze the Class constructor itself
+            (hardenFn(currentClass), Object.freeze(currentClass));
+        }
+
+        // Anonymize & freeze the structures
+        for (const structure of [isFunction, manualTimingSafeEqual, isAsync, toAsync, compareVal, chain_, chain$]) {
+            structure && (hardenFn(structure), Object.freeze(structure));
+        }
+
+    }, null, null, false);
+
+})([Pipe, SilentPipe], PipeAliases);
+
+
 export {
-    isAsync, toAsync, wrapTry, wrapTrySync,
-    compareVal, zeroBuf,
-    SilentPipe, Pipe, PipeAliases,
+    zeroBuf, isAsync, toAsync, compareVal,
+    PipeAliases, SilentPipe, Pipe,
     chain_, chain$
 };
 export default chain_;

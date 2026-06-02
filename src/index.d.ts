@@ -1,6 +1,7 @@
 export default chain_;
 export type ModifyCallback<T, R> = () => any;
 export type PredicateCallback<T> = () => any;
+import { zeroBuf } from '@stless/modify-js/mini-utils';
 /**
  * Determines whether a given function is explicitly defined as a native async function.
  * @remarks
@@ -46,65 +47,6 @@ export function isAsync(fn: unknown): boolean;
  */
 export function toAsync<T extends (...args: any[]) => any>(fn: T): ((...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>>) | undefined;
 /**
- * An asynchronous try-catch-finally wrapper for streamlined control flow.
- * @remarks
- * - Seamlessly handles both synchronous and asynchronous functions by safely awaiting execution blocks.
- * - Guarantees sequential, chronological execution of error hooks (`cb_err`) and finalizers (`cb_last`).
- * @template T - The expected resolve type of the primary logic function.
- * @template E - The expected error type caught in the catch block. Defaults to `unknown`.
- * @template R - The return type of the error callback function (recovery value).
- * @param {() => Promise<T> | T} logic - The core function to execute safely. Must satisfy `isFunction` check.  Can be synchronous or asynchronous.
- * @param {(err: E, partialResult: undefined) => R | Promise<R>} [cb_err] - Optional error callback. Note: `partialResult` will always be `undefined` because if `logic` throws, its assignment never completes.
- * @param {(result: T | undefined) => void | Promise<void>} [cb_last] - Optional finalizer callback (runs like a `finally` block). Receives the successful result `T` from `logic`, or `undefined` if `logic` threw an exception (even if `cb_err` recovers a value).
- * @param {boolean} [isThrow=true] - If `true`, re-throws the caught error after executing all callbacks.
- * @returns {Promise<T | R | undefined>} A promise that resolves to:
- * - The result of `logic` (`T`) on success.
- * - The fallback result of `cb_err` (`R`) if an error was caught and handled.
- * - `undefined` if an error occurred, `isThrow` is false, and no `cb_err` handler was provided.
- * @throws {TypeError} If the provided `logic` argument fails the `isFunction` validation check.
- * @throws {E} Re-throws the original caught error if `isThrow` is true and an exception occurs.
- * @public
- * @category Utilities
- * @example
- * const data = await wrapTry(
- *     async () => await fetchUser(1),
- *     (err) => {
- *         console.error("Failed to fetch:", err);
- *         return { guest: true }; // Fallback value (Type R)
- *     },
- *     (primaryResult) => console.log("Operation finished. Was successful:", !!primaryResult),
- *     false
- * );
- */
-export function wrapTry<T, E, R>(logic: () => Promise<T> | T, cb_err?: (err: E, partialResult: undefined) => R | Promise<R>, cb_last?: (result: T | undefined) => void | Promise<void>, isThrow?: boolean): Promise<T | R | undefined>;
-/**
- * Synchronous try-catch wrapper for clean flow control.
- * @remarks
- * **CRITICAL:** This utility executes purely synchronously. All provided callbacks (`cb_err`, `cb_last`)
- * **must** be synchronous routines. If asynchronous functions or Promise-returning actions are provided,
- * they will fire background tasks, but the wrapper will return immediately without waiting for them to complete.
- * @template T - The return type of the main synchronous logic function.
- * @template E - The expected error type caught in the catch block. Defaults to `unknown`.
- * @template R - The return type of the error callback function.
- * @param {() => T} logic - The core synchronous function to execute. Must satisfy `isFunction` check.
- * @param {(err: E) => R} [cb_err] - Optional synchronous error callback.
- * @param {(result: T | undefined) => void} [cb_last] - Optional synchronous finalizer callback. Receives the successful result `T`, or `undefined` if execution failed.
- * @param {boolean} [isThrow=true] - If `true`, re-throws the caught error after executing callbacks.
- * @returns {T | R | undefined} The result of `logic` on success, the result of `cb_err` on failure, or `undefined` if a failure occurs and no error callback is provided.
- * @throws {TypeError} If the provided `logic` argument fails the `isFunction` validation check.
- * @throws {E} Re-throws the original caught error if `isThrow` is true and an exception occurs during execution.
- * @public
- * @category Utilities
- * @example
- * const result = wrapTrySync(
- *     () => JSON.parse(configString),
- *     (err) => ({ fallback: true }),
- *     () => console.log("Sync parsing attempted"),
- *     false
- * );
- */
-export function wrapTrySync<T, E, R>(logic: () => T, cb_err?: (err: E) => R, cb_last?: (result: T | undefined) => void, isThrow?: boolean): T | R | undefined;
-/**
  * Performs a deep strict comparison between two arbitrary values, utilizing optimized
  * constant-time paths for matched binary data containers.
  * @remarks
@@ -123,16 +65,111 @@ export function wrapTrySync<T, E, R>(logic: () => T, cb_err?: (err: E) => R, cb_
  */
 export function compareVal(a: unknown, b: unknown): boolean;
 /**
- * Overwrites the contents of arbitrary binary data containers with zeroes.
- * Wraps target buffers in a Uint8Array window to safely purge data footprints.
- * Supports typed array views, DataViews, standard ArrayBuffers, SharedArrayBuffers,
- * and custom buffer-like objects with a `.fill()` method.
- * @note This function safely swallows internal errors (e.g., if a buffer is detached,
- * transferred, or frozen) to prevent cleanup routines from crashing the application.
- * @param {...any} args - Multi-argument list of values targeted for clean erasure.
- * @returns {null} Always returns `null`.
+ * Copyright 2026 Aries Harbinger
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-export function zeroBuf(...args: any[]): null;
+/**
+ * @file Optimized utility for functional chaining and data transformation.
+ * @summary Lightweight, high-performance, zero-dependency, hardened polyfill for the TC39 Pipeline Operator.
+ * @author Aries Harbinger
+ * @license Apache-2.0
+ */
+/**
+ * @callback ModifyCallback
+ * @description A transformation function executed within the execution pipeline.
+ * @template T - The expected type of the incoming value.
+ * @template R - The expected type of the returned value.
+ * @param {T} value - The current internal value held by the pipeline.
+ * @param {Pipe} ctx - The current Pipe instance context.
+ * @returns {R} The newly transformed value.
+ */
+/**
+ * @callback PredicateCallback
+ * @description A predicate condition check used to evaluate or validate pipeline state.
+ * @template T - The expected type of the value being validated.
+ * @param {T} value - The current internal value held by the pipeline.
+ * @param {Pipe} ctx - The current Pipe instance context, allowing access to container utilities and configuration toggles.
+ * @returns {boolean} Returns true if the condition satisfies the predicate, false otherwise.
+ */
+/**
+ * A dedicated collection of structural macros, short-hands, and rapid-fire aliases
+ * automatically injected into the {@link Pipe} and {@link SilentPipe} instance prototype chains at runtime.
+ * @interface PipeAliases
+ * @property {function(boolean=): Pipe} togw - Alias for {@link Pipe#toggleIsWipe}
+ * @property {function(boolean=): Pipe} togh - Alias for {@link Pipe#toggleIsHighPerformance}
+ * @property {function(any): Pipe} _s - Alias for {@link Pipe#set}
+ * @property {function(any): Pipe} $s - Alias for {@link Pipe#set}
+ * @property {function(boolean=): Pipe} _rs - Alias for {@link Pipe#reset}
+ * @property {function(boolean=): Pipe} $rs - Alias for {@link Pipe#reset}
+ * @property {function(function(any, Pipe): any): Pipe} _p - Alias for {@link Pipe#modify}
+ * @property {function(function(any, Pipe): any): Pipe} $p - Alias for {@link Pipe#modify}
+ * @property {function(function(any, Pipe): void): Pipe} _m - Alias for {@link Pipe#mutate}
+ * @property {function(function(any, Pipe): void): Pipe} $m - Alias for {@link Pipe#mutate}
+ * @property {function(function(any, Pipe): any, (any|function(Error, any, Pipe): any)=): Pipe} _tp - Alias for {@link Pipe#tryModify}
+ * @property {function(function(any, Pipe): any, (any|function(Error, any, Pipe): any)=): Pipe} $tp - Alias for {@link Pipe#tryModify}
+ * @property {function(function(any, Pipe): void, (any|function(Error, any, Pipe): any)=): Pipe} _tm - Alias for {@link Pipe#tryMutate}
+ * @property {function(function(any, Pipe): void, (any|function(Error, any, Pipe): any)=): Pipe} $tm - Alias for {@link Pipe#tryMutate}
+ * @property {function(function(any, Pipe): boolean, function(any, Pipe): any): Pipe} _wp - Alias for {@link Pipe#modifyWhen}
+ * @property {function(function(any, Pipe): boolean, function(any, Pipe): any): Pipe} $wp - Alias for {@link Pipe#modifyWhen}
+ * @property {function(function(any, Pipe): boolean, function(any, Pipe): void): Pipe} _wc - Alias for {@link Pipe#tapWhen}
+ * @property {function(function(any, Pipe): boolean, function(any, Pipe): void): Pipe} $wc - Alias for {@link Pipe#tapWhen}
+ * @property {function(function(any, Pipe): boolean, function(any, Pipe): any): (Pipe|SilentPipe)} _wx - Alias for {@link Pipe#exitWhen}
+ * @property {function(function(any, Pipe): boolean, function(any, Pipe): any): (Pipe|SilentPipe)} $wx - Alias for {@link Pipe#exitWhen}
+ * @property {function(function(any, Pipe): any, (any|function(Error, any, Pipe): any)=, boolean=): (Pipe|SilentPipe)} _xe - Alias for {@link Pipe#exitErr}
+ * @property {function(function(any, Pipe): any, (any|function(Error, any, Pipe): any)=, boolean=): (Pipe|SilentPipe)} $xe - Alias for {@link Pipe#exitErr}
+ * @property {function(function(any, Pipe): any, (any|function(Error, any, Pipe): any)=, boolean=): Pipe} _ce - Alias for {@link Pipe#catchErr}
+ * @property {function(function(any, Pipe): any, (any|function(Error, any, Pipe): any)=, boolean=): Pipe} $ce - Alias for {@link Pipe#catchErr}
+ * @property {function((string|Array<string|number>), (any|function(any): any), boolean?, (any|function(Error, any, Pipe): any)?): Pipe} _a - Alias for {@link Pipe#alterValue}
+ * @property {function((string|Array<string|number>), (any|function(any): any), boolean?, (any|function(Error, any, Pipe): any)?): Pipe} $a - Alias for {@link Pipe#alterValue}
+ * @property {function((any|function(): any)=, boolean=): any} _o - Alias for {@link Pipe#out}
+ * @property {function((any|function(): any)=, boolean=): any} $o - Alias for {@link Pipe#out}
+ * @property {function(): boolean} _l - Alias for {@link Pipe#isLocked}
+ * @property {function(): boolean} $l - Alias for {@link Pipe#isLocked}
+ * @readonly
+ */
+export const PipeAliases: Readonly<{
+    togw: "toggleIsWipe";
+    togh: "toggleIsHighPerformance";
+    _s: "set";
+    $s: "set";
+    _rs: "reset";
+    $rs: "reset";
+    _p: "modify";
+    $p: "modify";
+    _m: "mutate";
+    $m: "mutate";
+    _tp: "tryModify";
+    $tp: "tryModify";
+    _tm: "tryMutate";
+    $tm: "tryMutate";
+    _wp: "modifyWhen";
+    $wp: "modifyWhen";
+    _wc: "tapWhen";
+    $wc: "tapWhen";
+    _wx: "exitWhen";
+    $wx: "exitWhen";
+    _xe: "exitErr";
+    $xe: "exitErr";
+    _ce: "catchErr";
+    $ce: "catchErr";
+    _a: "alterValue";
+    $a: "alterValue";
+    _o: "out";
+    $o: "out";
+    _l: "isLocked";
+    $l: "isLocked";
+}>;
 /**
  * A "Silent" empty shell version of a functional pipeline that discards all
  * downstream transformations while maintaining fluid chainability.
@@ -389,12 +426,12 @@ export class Pipe {
      * @throws {TypeError} If the provided `fn` argument is not a valid function.
      * @throws {Error} Re-throws the original processing exception if no `fallback` handler is provided.
      * @example
-     * chain_("https://malformed-url-target")
+     * chain_('{"bad-json...')
      *     .exitErr(
-     *         url => performUnsafeNetworkFetch(url),
-     *         (err) => ({ failure: true, trace: err.message }) // Escapes error track early
+     *         raw => JSON.parse(raw),
+     *         (err) => ({ isValid: false, reason: err.message }) // Escapes error track early
      *     )
-     *     ._p(response => response.json()) // Bypassed dynamically if fetch fails
+     *     ._p(config => config.theme) // Bypassed dynamically if JSON parsing fails
      *     .out();
      */
     exitErr<R, F>(fn: ModifyCallback<any, R>, fallback?: F | ((err: Error, partialResult: any, ctx: this) => F), isModify?: boolean): this | SilentPipe;
@@ -426,16 +463,16 @@ export class Pipe {
      */
     catchErr<R, F>(fn: ModifyCallback<any, R>, fallback?: F | ((err: Error, rollbackValue: any, ctx: this) => F), isModify?: boolean): this;
     /**
-     * Alters a deeply nested object property or specific array/buffer index within the pipeline state.
+     * Alters a nested object property or specific array/buffer index within the pipeline state.
      * @remarks
-     * This method dynamically parses dot-notation strings (e.g., `'profile.assets.id'`) or numeric indexes to
+     * This method dynamically parses path strings (e.g., `'settingsId'`) or numeric indexes to
      * traverse and modify target values. It features strict internal security guardrails that detect and
      * block malicious Prototype Pollution payloads targeting `__proto__`, `constructor`, or `prototype`.
      * *Note:* If `isCreateNestedObj` is true, a failure mid-way through a deep traversal path may leave
      * behind partially initialized empty objects `{}` on the original object reference before triggering the fallback.
      * @template V - The type of the value or modifier function being assigned.
      * @template F - The fallback type used to recover state if path traversal or assignment fails.
-     * @param {string | number} nameKey - A dot-separated string path representing the object hierarchy trajectory, or a direct numeric index.
+     * @param {string | number} nameKey - A string path representing the object hierarchy trajectory, or a direct numeric index.
      * @param {V | ((currentVal: *) => V)} val - The absolute replacement value, or a modifier callback receiving the existing property value and returning the update.
      * @param {boolean} [isCreateNestedObj=true] - When true, automatically initializes missing path segments as empty object layers `{}`.
      * @param {F | ((err: Error, partialResult: *, ctx: this) => F)} [fallback] - An optional fallback value or error-trapping routine to handle traversal or structural errors.
@@ -445,16 +482,16 @@ export class Pipe {
      * @throws {Error} Re-throws the original processing exception if no `fallback` handler is provided.
      * @example
      * // Example 1: Updating flat or nested keys using values or modifiers
-     * chain_({ user: { name: "Gabe" } })
-     *     .alterValue("user.name", "Gabriel")
-     *     .alterValue("user.score", (prev = 0) => prev + 3.33);
+     * chain_({ config: "alpha" })
+     *     .alterValue("config", "beta")
+     *     .alterValue("score", (prev = 0) => prev + 3.33);
      *
      * // Example 2: Target-altering a collection array index
      * chain_([10, 20, 30])
      *     .alterValue(1, 144); // Updates array index 1 from 20 to 144
      *
      * // Example 3: Deep auto-instantiation with a graceful catch fallback
-     * chain_(null).alterValue("meta.deeply.nested.key", "Hello!", true, (err) => {
+     * chain_(null).alterValue("deepKey", "Hello!", true, (err) => {
      *     console.error("Traversal error bypassed:", err.message);
      *     return { errorState: true };
      * });
@@ -493,112 +530,6 @@ export class Pipe {
     #private;
 }
 /**
- * Copyright 2026 Aries Harbinger
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/**
- * @file Optimized utility for functional chaining and data transformation.
- * @summary Lightweight, high-performance, zero-dependency, hardened polyfill for the TC39 Pipeline Operator.
- * @author Aries Harbinger
- * @license Apache-2.0
- */
-/**
- * @callback ModifyCallback
- * @description A transformation function executed within the execution pipeline.
- * @template T - The expected type of the incoming value.
- * @template R - The expected type of the returned value.
- * @param {T} value - The current internal value held by the pipeline.
- * @param {Pipe} ctx - The current Pipe instance context.
- * @returns {R} The newly transformed value.
- */
-/**
- * @callback PredicateCallback
- * @description A predicate condition check used to evaluate or validate pipeline state.
- * @template T - The expected type of the value being validated.
- * @param {T} value - The current internal value held by the pipeline.
- * @param {Pipe} ctx - The current Pipe instance context, allowing access to container utilities and configuration toggles.
- * @returns {boolean} Returns true if the condition satisfies the predicate, false otherwise.
- */
-/**
- * A dedicated collection of structural macros, short-hands, and rapid-fire aliases
- * automatically injected into the {@link Pipe} and {@link SilentPipe} instance prototype chains at runtime.
- * @interface PipeAliases
- * @property {function(boolean=): Pipe} togw - Alias for {@link Pipe#toggleIsWipe}
- * @property {function(boolean=): Pipe} togh - Alias for {@link Pipe#toggleIsHighPerformance}
- * @property {function(any): Pipe} _s - Alias for {@link Pipe#set}
- * @property {function(any): Pipe} $s - Alias for {@link Pipe#set}
- * @property {function(boolean=): Pipe} _rs - Alias for {@link Pipe#reset}
- * @property {function(boolean=): Pipe} $rs - Alias for {@link Pipe#reset}
- * @property {function(function(any, Pipe): any): Pipe} _p - Alias for {@link Pipe#modify}
- * @property {function(function(any, Pipe): any): Pipe} $p - Alias for {@link Pipe#modify}
- * @property {function(function(any, Pipe): void): Pipe} _m - Alias for {@link Pipe#mutate}
- * @property {function(function(any, Pipe): void): Pipe} $m - Alias for {@link Pipe#mutate}
- * @property {function(function(any, Pipe): any, (any|function(Error, any, Pipe): any)=): Pipe} _tp - Alias for {@link Pipe#tryModify}
- * @property {function(function(any, Pipe): any, (any|function(Error, any, Pipe): any)=): Pipe} $tp - Alias for {@link Pipe#tryModify}
- * @property {function(function(any, Pipe): void, (any|function(Error, any, Pipe): any)=): Pipe} _tm - Alias for {@link Pipe#tryMutate}
- * @property {function(function(any, Pipe): void, (any|function(Error, any, Pipe): any)=): Pipe} $tm - Alias for {@link Pipe#tryMutate}
- * @property {function(function(any, Pipe): boolean, function(any, Pipe): any): Pipe} _wp - Alias for {@link Pipe#modifyWhen}
- * @property {function(function(any, Pipe): boolean, function(any, Pipe): any): Pipe} $wp - Alias for {@link Pipe#modifyWhen}
- * @property {function(function(any, Pipe): boolean, function(any, Pipe): void): Pipe} _wc - Alias for {@link Pipe#tapWhen}
- * @property {function(function(any, Pipe): boolean, function(any, Pipe): void): Pipe} $wc - Alias for {@link Pipe#tapWhen}
- * @property {function(function(any, Pipe): boolean, function(any, Pipe): any): (Pipe|SilentPipe)} _wx - Alias for {@link Pipe#exitWhen}
- * @property {function(function(any, Pipe): boolean, function(any, Pipe): any): (Pipe|SilentPipe)} $wx - Alias for {@link Pipe#exitWhen}
- * @property {function(function(any, Pipe): any, (any|function(Error, any, Pipe): any)=, boolean=): (Pipe|SilentPipe)} _xe - Alias for {@link Pipe#exitErr}
- * @property {function(function(any, Pipe): any, (any|function(Error, any, Pipe): any)=, boolean=): (Pipe|SilentPipe)} $xe - Alias for {@link Pipe#exitErr}
- * @property {function(function(any, Pipe): any, (any|function(Error, any, Pipe): any)=, boolean=): Pipe} _ce - Alias for {@link Pipe#catchErr}
- * @property {function(function(any, Pipe): any, (any|function(Error, any, Pipe): any)=, boolean=): Pipe} $ce - Alias for {@link Pipe#catchErr}
- * @property {function((string|Array<string|number>), (any|function(any): any), boolean?, (any|function(Error, any, Pipe): any)?): Pipe} _a - Alias for {@link Pipe#alterValue}
- * @property {function((string|Array<string|number>), (any|function(any): any), boolean?, (any|function(Error, any, Pipe): any)?): Pipe} $a - Alias for {@link Pipe#alterValue}
- * @property {function((any|function(): any)=, boolean=): any} _o - Alias for {@link Pipe#out}
- * @property {function((any|function(): any)=, boolean=): any} $o - Alias for {@link Pipe#out}
- * @property {function(): boolean} _l - Alias for {@link Pipe#isLocked}
- * @property {function(): boolean} $l - Alias for {@link Pipe#isLocked}
- * @readonly
- */
-export const PipeAliases: Readonly<{
-    togw: "toggleIsWipe";
-    togh: "toggleIsHighPerformance";
-    _s: "set";
-    $s: "set";
-    _rs: "reset";
-    $rs: "reset";
-    _p: "modify";
-    $p: "modify";
-    _m: "mutate";
-    $m: "mutate";
-    _tp: "tryModify";
-    $tp: "tryModify";
-    _tm: "tryMutate";
-    $tm: "tryMutate";
-    _wp: "modifyWhen";
-    $wp: "modifyWhen";
-    _wc: "tapWhen";
-    $wc: "tapWhen";
-    _wx: "exitWhen";
-    $wx: "exitWhen";
-    _xe: "exitErr";
-    $xe: "exitErr";
-    _ce: "catchErr";
-    $ce: "catchErr";
-    _a: "alterValue";
-    $a: "alterValue";
-    _o: "out";
-    $o: "out";
-    _l: "isLocked";
-    $l: "isLocked";
-}>;
-/**
  * Creates a new Pipe instance to initiate a transformation pipeline.
  * @function chain_
  * @param {any|function(): any} val - The initial value to process. If a function is provided,
@@ -607,7 +538,7 @@ export const PipeAliases: Readonly<{
  * Configuration options for automated cleanups and optimized deep mutations.
  * @returns {Pipe} A new initialization wrapper for the active Pipe execution context.
  * @example
- * const result = chain_("   hello world   ")
+ * const result = chain_("  hello world  ")
  *     ._p(s => s.trim())
  *     ._p(s => s.toUpperCase())
  *     .out(); // "HELLO WORLD"
@@ -627,3 +558,4 @@ export function chain$(val: any | (() => any), opts?: boolean | {
     isWipe?: boolean;
     isHighPerformance?: boolean;
 }): Pipe;
+export { zeroBuf };

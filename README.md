@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/harnumaix/modify-js/refs/heads/main/media/banner.png" alt="Banner" width="1250">
+  <img src="https://raw.githubusercontent.com/harnumaix/modify-js/refs/heads/main/media/banner.png" alt="Banner" width="1250">
 </div>
 
 <br />
@@ -10,7 +10,7 @@
 ![Node.js](https://img.shields.io/badge/Node.js-%3E%3D16.11.0-green)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/harnumaix/modify-js/blob/main/LICENSE)
 ![Verify Status](https://github.com/harnumaix/modify-js/actions/workflows/verify.yml/badge.svg)
-[![Socket Badge](https://badge.socket.dev/npm/package/@stless/modify-js/2.0.3)](https://badge.socket.dev/npm/package/@stless/modify-js/2.0.3)
+[![Socket Badge](https://badge.socket.dev/npm/package/@stless/modify-js/2.0.4)](https://badge.socket.dev/npm/package/@stless/modify-js/2.0.4)
 [![Donate](https://img.shields.io/badge/@HarnumaIX-Donate-FF4D4D)](https://harnumaix.github.io/donate/)
 
 <br />
@@ -330,7 +330,7 @@ const processUser = (raw) =>
 | **Async/stream support** | No | Yes — core feature | No — sync only |
 | **Memory wiping** | No | No | Yes — `isWipe`, `zeroBuf` |
 | **Browser support** | Yes | Yes | No — Node only |
-| **Bundle size** | ~75KB minified | ~45KB minified (core) | ~7.2KB minified |
+| **Bundle size** | ~75KB minified | ~45KB minified (core) | ~7KB minified |
 
 <br />
 
@@ -379,23 +379,50 @@ These methods are available on instances returned by `chain_()` or `chain$()`, a
 The underlying infrastructure components can be imported independently as named exports for lower-level systems engineering tasking.
 
 ```javascript
-import { zeroBuf, compareVal, isAsync, toAsync, wrapTry, wrapTrySync } from '@stless/modify-js';
+import {
+    zeroBuf, isAsync, toAsync, compareVal,
+    PipeAliases, SilentPipe, Pipe,
+    chain_, chain$
+} from '@stless/modify-js';
+
 ```
 
 <br />
 
-| Named Export | Type | Purpose & Low-Level Mechanics |
+| Named Export | Type | Purpose |
 | --- | --- | --- |
 | **`chain_`** / **`chain$`** | `Function` | Factory entry points that instantiate a new, stateful `Pipe` container wrapping the target input value. |
 | **`zeroBuf`** | `Function` | Zeros out binary views and raw buffers (`ArrayBuffer`, `SharedArrayBuffer`, typed views) by calling `.fill(0)` across the allocated memory region. **Note:** the JS runtime or OS may not guarantee immediate physical erasure. |
 | **`compareVal`** | `Function` | A hardened, timing-safe equality engine. Falls back to a manual constant-time bitwise loop (`manualTimingSafeEqual`) when a `SharedArrayBuffer` is involved, since Node's `timingSafeEqual` does not accept shared memory. Uses `timingSafeEqual` for standard buffers, and `isDeepStrictEqual` for everything else. |
 | **`isAsync`** | `Function` | Evaluates if a given target function is explicitly asynchronous by mapping its internal descriptor prototype chain against `AsyncFunctionProto`. |
 | **`toAsync`** | `Function` | Normalizes input execution signatures. Wraps synchronous function references inside a non-blocking asynchronous executor shell while passing existing async chains straight through. |
-| **`wrapTry`** | `Function` | Asynchronous error boundary orchestration engine. Automatically handles both synchronous and asynchronous execution branches, callbacks, and teardown lifecycles seamlessly via native await normalization. |
-| **`wrapTrySync`** | `Function` | Synchronous variation of `wrapTry`. Absorbs processing errors safely inside synchronous runtime steps without throwing uncaught thread failures. |
 | **`Pipe`** | `Class` | The core underlying pipeline state machine container. Highly defensive structure requiring active instance validation on every lifecycle state change. |
 | **`SilentPipe`** | `Class` | A shell container wrapped inside a dynamic ECMAScript `Proxy`. Captures unmapped downstream methods and cleanly neutralizes them to execute seamless short-circuiting patterns. |
 | **`PipeAliases`** | `Object` | A frozen map of shorthand aliases registered onto the `Pipe` and `SilentPipe` prototypes at module load time (e.g. `_p` → `modify`, `$xe` → `exitErr`). |
+
+<br />
+
+### Mini Utilities
+
+A zero-dependency runtime hardening utility ecosystem for memory sanitization and control-flow fault isolation.
+
+```javascript
+import {
+    PrivateContainer, hardenFn, zeroBuf,
+    wrapTry, wrapTrySync
+} from '@stless/modify-js/mini-utils';
+
+```
+
+<br />
+
+| Named Export | Type | Purpose |
+| --- | --- | --- |
+| **`wrapTry`** | `Function` | Asynchronous error boundary orchestration engine. Automatically handles both synchronous and asynchronous execution branches, callbacks, and teardown lifecycles seamlessly via native await normalization. |
+| **`wrapTrySync`** | `Function` | Synchronous variation of `wrapTry`. Absorbs processing errors safely inside synchronous runtime steps without throwing uncaught thread failures. |
+| **`zeroBuf`** | `Function` | Zeros out binary views and raw buffers (`ArrayBuffer`, `SharedArrayBuffer`, typed views) by calling `.fill(0)` across the allocated memory region. **Note:** the JS runtime or OS may not guarantee immediate physical erasure. |
+| **`hardenFn`** | `Function` | Structurally locks a function by redefining its `name` property descriptor as non-configurable, non-writable, and non-enumerable. Optionally reassigns the hardened reference in-place onto a parent object at a given key. |
+| **`PrivateContainer`** | `Class` | A hardened runtime vault for isolated value storage. Uses a true private field (`#internalVal`) to enforce strict scoping boundaries around sensitive primitives or callbacks. Supports lazy evaluation, togglable function unwrapping, `zeroBuf`-backed memory scrubbing via `.reset()`, and permanent immutability via `.freeze()`. Designed as a defensive replacement for soft-private conventions such as `_privateValue`. |
 
 <br />
 <br />

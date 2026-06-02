@@ -1,9 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+
 import {
-    Pipe, SilentPipe, chain_, chain$, PipeAliases,
-    compareVal, zeroBuf, isAsync, toAsync, wrapTry, wrapTrySync
+    isAsync, toAsync, compareVal,
+    PipeAliases, SilentPipe, Pipe,
+    chain_, chain$
 } from '@stless/modify-js';
+
+import {
+    PrivateContainer, hardenFn, zeroBuf,
+    wrapTry, wrapTrySync
+} from '@stless/modify-js/mini-utils';
 
 
 // ─────────────────────────────────────────────────────────────────────────────
